@@ -7,7 +7,7 @@ from tqdm import tqdm
 NUM_LABELS = 4
 HIDDEN_SIZE = 1024
 NUM_LAYERS = 6
-NUM_EPOCHS = 2000
+NUM_EPOCHS = 20000
 LR = 1e-3
 WD = 1e-7
 P = 0.1
@@ -29,6 +29,9 @@ if __name__ == "__main__":
         test_data_path = os.path.dirname(file_path)
 
         out_path = "../outputs/song"
+
+    tqdm.write(f"Input: {train_data_path+train_file_name} {test_data_path+test_file_name}")
+    tqdm.write(f"Output: {out_path}")
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     train_x, train_y = get_data(
