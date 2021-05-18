@@ -2,9 +2,6 @@ import torch
 import sys, os
 from utils import get_data, Model, test_model, sort_dataset
 
-data_path = "../data/real_regression_data"
-out_path = "../outputs/real_regression_data"
-
 NUM_LABELS = 4
 HIDDEN_SIZE = 1024
 NUM_LAYERS = 3
@@ -12,11 +9,25 @@ NUM_LAYERS = 3
 
 if __name__ == "__main__":
     file_name = "real_test_timesorted"
-    if(len(sys.argv) > 1):
-        file_path = sys.argv[1]
+    data_path = "../data/real_regression_data"
+    out_path = "../outputs/real_regression_data"
+    if(len(sys.argv) > 2):
+        out_path = sys.argv[1]
+        file_path = sys.argv[2]
         file_name = os.path.splitext(os.path.basename(file_path))[0]
         data_path = os.path.dirname(file_path)
+
+    else:
+        print(f"Usage: {sys.argv[0]} model_directory test_data_file")
+        print(f"Example: {sys.argv[0]} ../outputs/song ../data/real_regression_data/real_test_truesorted.npy")
+        print(f"Example: {sys.argv[0]} ../outputs/real_regression_data ../data/real_regression_data/real_test_timesorted.npy")
+        exit()
+
+    print(f"Input: {data_path+file_name}")
+    print(f"Output: {out_path}")
+
     device = torch.device('cpu')
+    # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # test_x, test_y, test_Y, min_v, max_v = get_data(
     #     data_path=data_path,

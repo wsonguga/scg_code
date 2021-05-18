@@ -7,7 +7,7 @@ from tqdm import tqdm
 NUM_LABELS = 4
 HIDDEN_SIZE = 1024
 NUM_LAYERS = 6
-NUM_EPOCHS = 20000
+NUM_EPOCHS = 10
 LR = 1e-3
 WD = 1e-7
 P = 0.1
@@ -20,18 +20,23 @@ if __name__ == "__main__":
     test_file_name = "real_test_timesorted"
 
     if(len(sys.argv) > 2):
-        file_path = sys.argv[1]
+        out_path = sys.argv[1]
+
+        file_path = sys.argv[2]
         train_file_name = os.path.splitext(os.path.basename(file_path))[0]
         train_data_path = os.path.dirname(file_path)
 
-        file_path = sys.argv[2]
+        file_path = sys.argv[3]
         test_file_name = os.path.splitext(os.path.basename(file_path))[0]
         test_data_path = os.path.dirname(file_path)
+    else:
+        print(f"Usage: {sys.argv[0]} model_directory train_data_file test_data_file")
+        print(f"Usage: {sys.argv[0]} ../outputs/song ../data/real_regression_data/real_train_truesorted.npy ../data/real_regression_data/real_test_truesorted.npy ")
+        print(f"Usage: {sys.argv[0]} ../outputs/real_regression_data ../data/real_regression_data/real_train_timesorted.npy ../data/real_regression_data/real_test_timesorted.npy ")    
+        exit()
 
-        out_path = "../outputs/song"
-
-    tqdm.write(f"Input: {train_data_path+train_file_name} {test_data_path+test_file_name}")
-    tqdm.write(f"Output: {out_path}")
+    print(f"Input: {train_data_path+train_file_name} {test_data_path+test_file_name}")
+    print(f"Output: {out_path}")
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     train_x, train_y = get_data(
@@ -42,7 +47,8 @@ if __name__ == "__main__":
         device=device,
         num_labels=NUM_LABELS,
         return_extra=False,
-        drop_last=True)
+        drop_last = False,
+        drop_extra=2)
     test_x, test_y, test_Y, min_v, max_v = get_data(
         data_path=test_data_path, #data_path,
         out_path=out_path,
@@ -51,7 +57,8 @@ if __name__ == "__main__":
         device=device,
         num_labels=NUM_LABELS,
         return_extra=True,
-        drop_last=True)
+        drop_last = False,
+        drop_extra=2)
 
     model = Model(
         input_size=train_x.shape[1],
@@ -76,6 +83,9 @@ if __name__ == "__main__":
             tqdm.write(f"MAE of S = {test_losses[2]:.3f}")
             tqdm.write(f"MAE of D = {test_losses[3]:.3f}")
             tqdm.write("")
+
+            # model = model.to("cpu")
+            # torch.save(model.state_dict(), f"{out_path}/model.pt")
 
     model = model.to("cpu")
     torch.save(model.state_dict(), f"{out_path}/model.pt")
