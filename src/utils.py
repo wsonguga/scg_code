@@ -116,29 +116,135 @@ def test_model(model, x, y, min_v, max_v):
 
 
 # %%
+import numpy as np
+import time
+import sys
+import re
+import pytz
+import time
+import math
+import subprocess
+import sys
+import random
+import webbrowser
+import numpy as np
+from datetime import datetime
+from dateutil import tz
+
+def mac_to_int(mac):
+    res = re.match('^((?:(?:[0-9a-f]{2}):){5}[0-9a-f]{2})$', mac.lower())
+    if res is None:
+        raise ValueError('invalid mac address')
+    return int(res.group(0).replace(':', ''), 16)
+
+def int_to_mac(macint):
+    # if type(macint) != int:
+    #     raise ValueError('invalid integer')
+    newint = int(macint)
+    return ':'.join(['{}{}'.format(a, b)
+                     for a, b
+                     in zip(*[iter('{:012x}'.format(newint))]*2)])
+
+# This function converts the time string to epoch time xxx.xxx (second.ms).
+# Example: time = "2020-08-13T02:03:00.200", zone = "UTC" or "America/New_York"
+# If time = "2020-08-13T02:03:00.200Z" in UTC time, then call timestamp = local_time_epoch(time[:-1], "UTC"), which removes 'Z' in the string end
+def local_time_epoch(time, zone):
+    local_tz = pytz.timezone(zone)
+    localTime = datetime.strptime(time, "%Y-%m-%dT%H:%M:%S.%f")
+    local_dt = local_tz.localize(localTime, is_dst=None)
+    # utc_dt = local_dt.astimezone(pytz.utc)
+    epoch = local_dt.timestamp()
+    # print("epoch time:", epoch) # this is the epoch time in seconds, times 1000 will become epoch time in milliseconds
+    # print(type(epoch)) # float
+    return epoch 
+
+# This function converts the epoch time xxx.xxx (second.ms) to time string.
+# Example: time = "2020-08-13T02:03:00.200", zone = "UTC" or "America/New_York"
+# If time = "2020-08-13T02:03:00.200Z" in UTC time, then call timestamp = local_time_epoch(time[:-1], "UTC"), which removes 'Z' in the string end
+def epoch_time_local(epoch, zone):
+    local_tz = pytz.timezone(zone)
+    time = datetime.fromtimestamp(epoch).astimezone(local_tz).strftime("%Y-%m-%dT%H:%M:%S.%f")
+    return time 
+
 def sort_dataset():
-    import numpy as np
-    index = -5 # -5 timestamp
+    timestamp_index = -5 # -5 timestamp
+    mac_index = -6 # mac address
+
     file_path = "../data/real_regression_data/real_train_timesorted.npy"
     train_data = np.load(file_path)
 
     file_path = "../data/real_regression_data/real_test_timesorted.npy"
     test_data = np.load(file_path)
 
-    print(train_data.shape, np.min(train_data[:, index]), np.max(train_data[:, index]))
-    print(test_data.shape, np.min(test_data[:, index]), np.max(test_data[:, index]))
+    # print(train_data.shape, np.min(train_data[:, timestamp_index]), np.max(train_data[:, timestamp_index]))
+    # print(test_data.shape, np.min(test_data[:, timestamp_index]), np.max(test_data[:, timestamp_index]))
+    print(train_data.shape, 
+        epoch_time_local(np.min(train_data[:, timestamp_index])/10e8, "America/New_York"), 
+        epoch_time_local(np.max(train_data[:, timestamp_index])/10e8, "America/New_York")
+    )
+    print(test_data.shape, 
+        epoch_time_local(np.min(test_data[:, timestamp_index])/10e8, "America/New_York"), 
+        epoch_time_local(np.max(test_data[:, timestamp_index])/10e8, "America/New_York")
+    )
 
     data_set = np.concatenate( (train_data, test_data), 0)
-    data_set = data_set[np.argsort(data_set[:, -5])]
+    data_set = data_set[np.argsort(data_set[:, timestamp_index])]
+
+    # mac = int_to_mac(data_set[0, mac_index])
+    # print(mac)
+    # mac = int_to_mac(data_set[1, mac_index])
+    # print(mac)
+    # mac = int_to_mac(data_set[-1, mac_index])
+    # print(mac)
+
+    # time = epoch_time_local(data_set[0, timestamp_index]/10e8, "America/New_York")
+    # print(time)    
+    # time = epoch_time_local(data_set[1, timestamp_index]/10e8, "America/New_York")
+    # print(time)       
+    # time = epoch_time_local(data_set[-1, timestamp_index]/10e8, "America/New_York")
+    # print(time)   
 
     split_index = train_data.shape[0]
     train_data = data_set[:split_index, :]
     test_data = data_set[split_index:, :]
 
-    print(train_data.shape, np.min(train_data[:, index]), np.max(train_data[:, index]))
-    print(test_data.shape, np.min(test_data[:, index]), np.max(test_data[:, index]))
+    print(train_data.shape, 
+        epoch_time_local(np.min(train_data[:, timestamp_index])/10e8, "America/New_York"), 
+        epoch_time_local(np.max(train_data[:, timestamp_index])/10e8, "America/New_York")
+    )
+    print(test_data.shape, 
+        epoch_time_local(np.min(test_data[:, timestamp_index])/10e8, "America/New_York"), 
+        epoch_time_local(np.max(test_data[:, timestamp_index])/10e8, "America/New_York")
+    )
+    # print(test_data.shape, np.min(test_data[:, timestamp_index]), np.max(test_data[:, timestamp_index]))
 
-    np.save("../data/real_regression_data/real_train_truesorted.npy", train_data)
-    np.save("../data/real_regression_data/real_test_truesorted.npy", test_data)
+    # np.save("../data/real_regression_data/real_train_truesorted.npy", train_data)
+    # np.save("../data/real_regression_data/real_test_truesorted.npy", test_data)
+    train_data = np.load("../data/real_regression_data/real_train_truesorted.npy")
+    test_data = np.load("../data/real_regression_data/real_test_truesorted.npy")
 
+    # mac = int_to_mac(data_set[0, mac_index])
+    # print(mac)
+    # mac = int_to_mac(data_set[1, mac_index])
+    # print(mac)
+    # mac = int_to_mac(data_set[-1, mac_index])
+    # print(mac)
+
+    # time = epoch_time_local(data_set[0, timestamp_index]/10e8, "America/New_York")
+    # print(time)    
+    # time = epoch_time_local(data_set[1, timestamp_index]/10e8, "America/New_York")
+    # print(time)       
+    # time = epoch_time_local(data_set[-1, timestamp_index]/10e8, "America/New_York")
+    # print(time)   
+
+    print(train_data.shape, 
+        epoch_time_local(np.min(train_data[:, timestamp_index])/10e8, "America/New_York"), 
+        epoch_time_local(np.max(train_data[:, timestamp_index])/10e8, "America/New_York")
+    )
+    print(test_data.shape, 
+        epoch_time_local(np.min(test_data[:, timestamp_index])/10e8, "America/New_York"), 
+        epoch_time_local(np.max(test_data[:, timestamp_index])/10e8, "America/New_York")
+    )
+
+sort_dataset()
 # %%
