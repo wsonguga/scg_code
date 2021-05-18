@@ -24,7 +24,7 @@ if __name__ == "__main__":
         device=device,
         num_labels=NUM_LABELS,
         return_extra=False,
-        drop_special=True)
+        drop_last=True)
     test_x, test_y, test_Y, min_v, max_v = get_data(
         data_path=data_path,
         out_path=out_path,
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         device=device,
         num_labels=NUM_LABELS,
         return_extra=True,
-        drop_special=True)
+        drop_last=True)
 
     model = Model(
         input_size=train_x.shape[1],

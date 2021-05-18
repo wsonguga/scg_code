@@ -113,3 +113,32 @@ def test_model(model, x, y, min_v, max_v):
     out = out * (max_v - min_v) + min_v
     losses = torch.mean(torch.abs(out - y), axis=0)
     return losses
+
+
+# %%
+def sort_dataset():
+    import numpy as np
+    index = -5 # -5 timestamp
+    file_path = "../data/real_regression_data/real_train_timesorted.npy"
+    train_data = np.load(file_path)
+
+    file_path = "../data/real_regression_data/real_test_timesorted.npy"
+    test_data = np.load(file_path)
+
+    print(train_data.shape, np.min(train_data[:, index]), np.max(train_data[:, index]))
+    print(test_data.shape, np.min(test_data[:, index]), np.max(test_data[:, index]))
+
+    data_set = np.concatenate( (train_data, test_data), 0)
+    data_set = data_set[np.argsort(data_set[:, -5])]
+
+    split_index = train_data.shape[0]
+    train_data = data_set[:split_index, :]
+    test_data = data_set[split_index:, :]
+
+    print(train_data.shape, np.min(train_data[:, index]), np.max(train_data[:, index]))
+    print(test_data.shape, np.min(test_data[:, index]), np.max(test_data[:, index]))
+
+    np.save("../data/real_regression_data/real_train_truesorted.npy", train_data)
+    np.save("../data/real_regression_data/real_test_truesorted.npy", test_data)
+
+# %%
