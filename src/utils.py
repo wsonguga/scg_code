@@ -166,6 +166,17 @@ def epoch_time_local(epoch, zone):
     time = datetime.fromtimestamp(epoch).astimezone(local_tz).strftime("%Y-%m-%dT%H:%M:%S.%f")
     return time 
 
+def print_min_max_time(train_data, test_data):
+    timestamp_index = -5 # -5 timestamp
+    mac_index = -6 # mac address
+    print("Train Set:", train_data.shape, 
+        epoch_time_local(np.min(train_data[:, timestamp_index])/10e8, "America/New_York"), 
+        epoch_time_local(np.max(train_data[:, timestamp_index])/10e8, "America/New_York")
+    )
+    print("Test Set:", test_data.shape, 
+        epoch_time_local(np.min(test_data[:, timestamp_index])/10e8, "America/New_York"), 
+        epoch_time_local(np.max(test_data[:, timestamp_index])/10e8, "America/New_York")
+    )
 def sort_dataset():
     timestamp_index = -5 # -5 timestamp
     mac_index = -6 # mac address
@@ -208,14 +219,15 @@ def sort_dataset():
     train_data = data_set[:split_index, :]
     test_data = data_set[split_index:, :]
 
-    print(train_data.shape, 
-        epoch_time_local(np.min(train_data[:, timestamp_index])/10e8, "America/New_York"), 
-        epoch_time_local(np.max(train_data[:, timestamp_index])/10e8, "America/New_York")
-    )
-    print(test_data.shape, 
-        epoch_time_local(np.min(test_data[:, timestamp_index])/10e8, "America/New_York"), 
-        epoch_time_local(np.max(test_data[:, timestamp_index])/10e8, "America/New_York")
-    )
+    print_min_max_time(train_data, test_data)
+    # print(train_data.shape, 
+    #     epoch_time_local(np.min(train_data[:, timestamp_index])/10e8, "America/New_York"), 
+    #     epoch_time_local(np.max(train_data[:, timestamp_index])/10e8, "America/New_York")
+    # )
+    # print(test_data.shape, 
+    #     epoch_time_local(np.min(test_data[:, timestamp_index])/10e8, "America/New_York"), 
+    #     epoch_time_local(np.max(test_data[:, timestamp_index])/10e8, "America/New_York")
+    # )
     # print(test_data.shape, np.min(test_data[:, timestamp_index]), np.max(test_data[:, timestamp_index]))
 
     # np.save("../data/real_regression_data/real_train_truesorted.npy", train_data)
@@ -237,14 +249,16 @@ def sort_dataset():
     # time = epoch_time_local(data_set[-1, timestamp_index]/10e8, "America/New_York")
     # print(time)   
 
-    print(train_data.shape, 
-        epoch_time_local(np.min(train_data[:, timestamp_index])/10e8, "America/New_York"), 
-        epoch_time_local(np.max(train_data[:, timestamp_index])/10e8, "America/New_York")
-    )
-    print(test_data.shape, 
-        epoch_time_local(np.min(test_data[:, timestamp_index])/10e8, "America/New_York"), 
-        epoch_time_local(np.max(test_data[:, timestamp_index])/10e8, "America/New_York")
-    )
+    # print(train_data.shape, 
+    #     epoch_time_local(np.min(train_data[:, timestamp_index])/10e8, "America/New_York"), 
+    #     epoch_time_local(np.max(train_data[:, timestamp_index])/10e8, "America/New_York")
+    # )
+    # print(test_data.shape, 
+    #     epoch_time_local(np.min(test_data[:, timestamp_index])/10e8, "America/New_York"), 
+    #     epoch_time_local(np.max(test_data[:, timestamp_index])/10e8, "America/New_York")
+    # )
+    print_min_max_time(train_data, test_data)
+
 
 sort_dataset()
 # %%
